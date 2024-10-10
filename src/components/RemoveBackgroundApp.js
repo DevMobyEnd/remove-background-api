@@ -19,13 +19,13 @@ const RemoveBackgroundApp = () => {
         setError(null);
     
         const formData = new FormData();
-        formData.append('image', file);
+        formData.append('file', file);
     
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds timeout
     
         try {
-            const response = await fetch('http://127.0.0.1:5000/remove-background', {
+            const response = await fetch('http://localhost:5000/remove_background', {
                 method: 'POST',
                 body: formData,
                 signal: controller.signal,
@@ -33,7 +33,7 @@ const RemoveBackgroundApp = () => {
     
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to process image');
+                throw new Error(errorData.error || 'Failed to process image');
             }
     
             const blob = await response.blob();
@@ -47,7 +47,7 @@ const RemoveBackgroundApp = () => {
                     ? 'La solicitud ha excedido el tiempo de espera. Por favor, inténtalo de nuevo.'
                     : error.message === 'Failed to fetch'
                     ? 'No se pudo conectar con el servidor. Verifica tu conexión.'
-                    : 'Error al procesar la imagen. Por favor, inténtalo de nuevo.'
+                    : error.message || 'Error al procesar la imagen. Por favor, inténtalo de nuevo.'
             );
             setStep('upload');
         } finally {
@@ -65,7 +65,7 @@ const RemoveBackgroundApp = () => {
                 const a = document.createElement('a');
                 a.style.display = 'none';
                 a.href = url;
-                a.download = 'processed_image.png';
+                a.download = 'removed_background.png';
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
